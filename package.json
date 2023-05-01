@@ -1,0 +1,26 @@
+{
+  "name": "realcommerseb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0meram/realcommerseB.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/0meram/realcommerseB/issues"
+  },
+  "homepage": "https://github.com/0meram/realcommerseB#readme",
+  "keywords": [],
+  "dependencies": {
+    "axios": "^1.4.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mysql": "^2.18.1"
+  }
+}
