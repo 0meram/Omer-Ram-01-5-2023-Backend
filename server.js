@@ -3,26 +3,38 @@ const bodyParser = require('body-parser');
 const axios = require('axios');
 const mysql = require('mysql');
 require('dotenv').config()
+const cors = require("cors");
 
 const app = express();
 const port = process.env.PORT;
 
 // Configure body parser to parse JSON request bodies
 app.use(bodyParser.json());
+app.use(cors())
 
 // Create a MySQL connection pool
 const pool = mysql.createPool({
     connectionLimit: 10,
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'weather_db'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE
+});
+
+const con = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD
 });
 
 app.get('/', (req, res) => {
     res.send('Hello World! this is me')
 });
 
+con.connect(function (err) {
+    if (err) throw err;
+    console.log("Connected!");
+});
 
 // Endpoint to search for a city by query
 app.get('/api/search', async (req, res) => {
@@ -34,6 +46,7 @@ app.get('/api/search', async (req, res) => {
                 q: query
             }
         });
+        console.log(response.data);
         res.send(response.data);
     } catch (error) {
         console.error(error);
@@ -45,10 +58,6 @@ app.get('/api/search', async (req, res) => {
 app.get('/api/currentWeather', async (req, res) => {
     try {
         const { cityKey } = req.query;
-        const [result] = await query(`SELECT * FROM weather WHERE city_key = ?`, [cityKey]);
-        if (result) {
-            res.send(result);
-        } else {
             const response = await axios.get(`http://dataservice.accuweather.com/currentconditions/v1/${cityKey}`, {
                 params: {
                     apikey: process.env.ACCUWEATHER_API_KEY,
@@ -57,9 +66,8 @@ app.get('/api/currentWeather', async (req, res) => {
             });
             const { Temperature, WeatherText } = response.data[0];
             const celsiusTemperature = Temperature.Metric.Value;
-            await query(`INSERT INTO weather (city_key, temperature, weather_text) VALUES (?, ?, ?)`, [cityKey, celsiusTemperature, WeatherText]);
             res.send({ city_key: cityKey, temperature: celsiusTemperature, weather_text: WeatherText });
-        }
+            res.send(response.data[0]);
     } catch (error) {
         console.error(error);
         res.sendStatus(500);
