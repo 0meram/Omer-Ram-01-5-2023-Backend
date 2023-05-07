@@ -112,7 +112,7 @@ app.post('/api/favorites', async (req, res) => {
 app.delete('/api/favorites/:id', async (req, res) => {
     try {
         const { id } = req.params
-        await query(`DELETE FROM favorites WHERE id = ?`, [id])
+        await query(`DELETE FROM favorites WHERE city_key = ?`, [id])
         res.sendStatus(204)
     } catch (error) {
         console.error(error)
